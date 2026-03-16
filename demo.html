@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wiplist Embed Demo - Integration Example</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .keyword {
+        color: #c678dd;
+      }
+      .string {
+        color: #98c379;
+      }
+      .comment {
+        color: #5c6370;
+        font-style: italic;
+      }
+      .function {
+        color: #61afef;
+      }
+      .property {
+        color: #e06c75;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen bg-[#2a222b] font-sans p-8 md:p-4">
+    <div class="max-w-4xl mx-auto">
+      <!-- Main Card -->
+      <div class="bg-white rounded-2xl p-8 shadow-2xl mb-10 md:p-5">
+        <h1 class="text-3xl font-bold text-gray-900 mb-1 md:text-2xl">
+          Wiplist Embed
+        </h1>
+        <p class="text-sm text-gray-400 mb-8">Integration demo</p>
+
+        <div class="flex flex-col gap-4 mb-8">
+          <div class="flex flex-col gap-1.5">
+            <label for="apiKeyInput" class="text-sm font-semibold text-gray-700"
+              >API Key</label
+            >
+            <input
+              type="text"
+              id="apiKeyInput"
+              placeholder="Paste your API key and press Enter"
+              class="px-3.5 py-2.5 border-2 border-gray-300 rounded-lg text-sm font-mono transition-colors focus:outline-none focus:border-blue-600"
+              onblur="connectWidget()"
+            />
+            <span class="text-xs text-gray-400"
+              >Get this from Wiplist under Settings &gt; API Keys</span
+            >
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label
+              for="apiUserInput"
+              class="text-sm font-semibold text-gray-700"
+              >API User</label
+            >
+            <input
+              type="email"
+              id="apiUserInput"
+              placeholder="user@company.com"
+              class="px-3.5 py-2.5 border-2 border-gray-300 rounded-lg text-sm font-mono transition-colors focus:outline-none focus:border-blue-600"
+              onblur="connectWidget()"
+            />
+            <span class="text-xs text-gray-400"
+              >Acts as this user for created records. Defaults to your first
+              admin if left blank.</span
+            >
+          </div>
+          <div
+            id="connectStatus"
+            class="hidden text-sm font-semibold px-3.5 py-2 rounded-md self-start"
+          ></div>
+        </div>
+
+        <div
+          class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-10 mb-8"
+        >
+          <h3 class="text-lg font-medium text-gray-900 mb-4 text-center">
+            Click any button to test the widget features:
+          </h3>
+          <div class="grid grid-cols-3 gap-4 md:grid-cols-1">
+            <button
+              onclick="openCreateJob()"
+              class="py-3.5 px-6 bg-white border-2 border-blue-600 text-blue-600 rounded-lg text-sm font-semibold cursor-pointer transition-all hover:bg-blue-600 hover:text-white hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
+            >
+              Create New Project
+            </button>
+            <button
+              onclick="openCreateJobPrefilled()"
+              class="py-3.5 px-6 bg-white border-2 border-blue-600 text-blue-600 rounded-lg text-sm font-semibold cursor-pointer transition-all hover:bg-blue-600 hover:text-white hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
+            >
+              Create (Pre-filled)
+            </button>
+            <button
+              onclick="openCreateTime()"
+              class="py-3.5 px-6 bg-white border-2 border-blue-600 text-blue-600 rounded-lg text-sm font-semibold cursor-pointer transition-all hover:bg-blue-600 hover:text-white hover:-translate-y-0.5 hover:shadow-md active:translate-y-0"
+            >
+              Create Time
+            </button>
+          </div>
+        </div>
+
+        <!-- Event Log -->
+        <div
+          class="bg-gray-800 text-emerald-400 p-5 rounded-xl font-mono text-xs max-h-96 overflow-y-auto mt-8"
+          id="eventLog"
+        >
+          <div class="text-gray-400 mb-3 font-semibold">Live Event Log</div>
+          <div id="eventEntries">
+            <div class="py-2 border-b border-gray-700">
+              <span class="text-gray-500 mr-2">[Ready]</span> Widget initialized
+              and ready
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://embed.wiplist.io/embed.js"></script>
+
+    <!-- Demo helpers — not needed in production -->
+    <script>
+      // Active widget instance. Re-created each time the API key changes.
+      var wiplist = null;
+
+      // Pre-fill the demo inputs and connect on load.
+
+      function setStatus(className, text) {
+        var el = document.getElementById("connectStatus");
+        if (!el) return;
+        el.className =
+          "block text-sm font-semibold px-3.5 py-2 rounded-md self-start " +
+          className;
+        el.textContent = text;
+      }
+
+      function connectWidget(apiKey, apiUser) {
+        apiKey =
+          apiKey != null
+            ? apiKey
+            : document.getElementById("apiKeyInput").value.trim();
+        apiUser =
+          apiUser != null
+            ? apiUser
+            : document.getElementById("apiUserInput").value.trim();
+
+        if (!apiKey) {
+          setStatus("bg-red-100 text-red-800", "Please enter an API key.");
+          return;
+        }
+
+        if (wiplist) {
+          wiplist.destroy();
+        }
+
+        wiplist = Wiplist({
+          apiKey: apiKey,
+          apiUser: apiUser || "",
+
+          onJobCreated: function (job) {
+            logEvent("Job Created", {
+              id: job.id,
+              team_id: job.team_id,
+              user_id: job.user_id,
+              company_id: job.company_id,
+              workflow_id: job.workflow_id,
+              status: job.status,
+              job_number: job.job_number,
+              job_title: job.job_title,
+            });
+          },
+
+          onTimeCreated: function (time) {
+            logEvent("Time Created", {
+              id: time.id,
+              job_id: time.job_id,
+              time_total: time.time_total + " min",
+            });
+          },
+
+          onConnected: function () {
+            setStatus(
+              "bg-green-100 text-green-800",
+              "Connected — widget is ready.",
+            );
+          },
+
+          onError: function (error) {
+            setStatus(
+              "bg-red-100 text-red-800",
+              (error && error.message) ||
+                "Connection failed. Check your API key.",
+            );
+          },
+        });
+
+        setStatus("bg-yellow-100 text-yellow-800", "Connecting...");
+      }
+
+      function openCreateJob() {
+        if (wiplist) wiplist.createJob();
+      }
+
+      function openCreateJobPrefilled() {
+        if (!wiplist) return;
+        wiplist.createJob({
+          status: Wiplist.JobStatus.IN_PROGRESS,
+          job_title: "Test Project",
+          description: "Full test project",
+        });
+      }
+
+      function openCreateTime() {
+        if (wiplist) wiplist.createTime({ job_id: null });
+      }
+
+      function logEvent(eventName, data) {
+        var eventEntries = document.getElementById("eventEntries");
+        var timestamp = new Date().toLocaleTimeString();
+
+        var entry = document.createElement("div");
+        entry.className = "py-2 border-b border-gray-700";
+
+        var dataStr = Object.entries(data)
+          .map(function (kv) {
+            return kv[0] + ": " + kv[1];
+          })
+          .join(" | ");
+
+        entry.innerHTML =
+          '<div><span class="text-gray-500 mr-2">[' +
+          timestamp +
+          "]</span>" +
+          '<span class="text-emerald-400">' +
+          eventName +
+          "</span></div>" +
+          (dataStr
+            ? '<div class="text-gray-50 ml-5 mt-1">' + dataStr + "</div>"
+            : "");
+
+        eventEntries.appendChild(entry);
+
+        var eventLog = document.getElementById("eventLog");
+        eventLog.scrollTop = eventLog.scrollHeight;
+      }
+    </script>
+  </body>
+</html>
