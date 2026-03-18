@@ -108,6 +108,7 @@ wiplist.createJob({
   contact_id: "xxxxx",
   workflow_id: "xxxxx",
   status: Wiplist.JobStatus.IN_PROGRESS,
+  type: Wiplist.JobType.FIXED_PRICE,
   job_title: "Kitchen Renovation",
   description: "Full remodel",
   company_name: "Acme Corp",
@@ -122,6 +123,7 @@ wiplist.createJob({
 | `contact_id`   | string | Associate with a contact                 |
 | `workflow_id`  | string | Use this workflow                        |
 | `status`       | number | Initial status (see `Wiplist.JobStatus`) |
+| `type`         | number | Job type (see `Wiplist.JobType`)         |
 | `job_title`    | string | Pre-fill the job title                   |
 | `description`  | string | Pre-fill the description                 |
 | `company_name` | string | Pre-fill or look up a client by name     |
@@ -160,6 +162,15 @@ Wiplist.JobStatus.PENDING; // 200
 Wiplist.JobStatus.IN_PROGRESS; // 210
 ```
 
+## Type constants
+
+Use `Wiplist.JobType` instead of raw integers for readability:
+
+```js
+Wiplist.JobType.NON_BILLABLE; // 10
+Wiplist.JobType.FIXED_PRICE; // 20
+```
+
 ## Callback payloads
 
 ### `onJobCreated(job)`
@@ -172,6 +183,7 @@ Wiplist.JobStatus.IN_PROGRESS; // 210
   company_id:   "xxxxx",           // nullable
   workflow_id:  "xxxxx",           // nullable
   status:       200,
+  type:         20,
   job_number:   "J-5432",
   job_title:    "Kitchen Renovation",
   description:  "Full remodel...",

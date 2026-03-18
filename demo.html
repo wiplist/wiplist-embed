@@ -166,6 +166,7 @@
               company_id: job.company_id,
               workflow_id: job.workflow_id,
               status: job.status,
+              type: job.type,
               job_number: job.job_number,
               job_title: job.job_title,
             });
@@ -206,6 +207,7 @@
         if (!wiplist) return;
         wiplist.createJob({
           status: Wiplist.JobStatus.IN_PROGRESS,
+          type: Wiplist.JobType.FIXED_PRICE,
           job_title: "Test Project",
           description: "Full test project",
         });
