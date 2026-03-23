@@ -124,6 +124,7 @@ wiplist.createJob({
 | `workflow_id`  | string | Use this workflow                        |
 | `status`       | number | Initial status (see `Wiplist.JobStatus`) |
 | `type`         | number | Job type (see `Wiplist.JobType`)         |
+| `job_number`   | string | Pre-fill the job number                  |
 | `job_title`    | string | Pre-fill the job title                   |
 | `description`  | string | Pre-fill the description                 |
 | `company_name` | string | Pre-fill or look up a client by name     |
